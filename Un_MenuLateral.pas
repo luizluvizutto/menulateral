@@ -47,7 +47,9 @@ type
       procedure MovimentarMenu;
       procedure CriarBotoes(Pn: TPanel; pai: String);
       procedure CriarPainelFilho(Botao: TSpeedButton);
-      procedure DestruirPainelFilho(Botao: TSpeedButton);
+
+      // procedure DestruirPainelFilho(Botao: TSpeedButton); overload;
+      procedure DestruirPainelFilho(Painel: TPanel);
 
       procedure FechaMenu( Sender: TObject );
 
@@ -79,6 +81,8 @@ begin
    Painel.AlignWithMargins := false;
    Painel.Margins.Left := 0;
    Painel.Margins.Right := 0;
+   Painel.Margins.Top := 0;
+   Painel.Margins.Bottom := 0;
    Painel.ShowCaption := false;
 end;
 // *****************************************************************************
@@ -164,8 +168,8 @@ begin
    if PainelFilho = NIL then begin
       PainelFilho := TPanel.Create(Self);
       PainelFilho.Name   := NomePainel;
-      PainelFilho.Top    := Botao.Top;
-      PainelFilho.Left   := ( FPainelMenu.Width - ( LARGURA_CONTRAIDA+4) ) * xMenu.Nivel;
+      PainelFilho.Top    := Botao.Top + TPanel( Botao.Parent ).Top;
+      PainelFilho.Left   := FPainelMenu.Width * xMenu.Nivel;
       PainelFilho.Width  := FPainelMenu.Width;
       PainelFilho.Height := 150;
       ConfiguraMenu(PainelFilho);
@@ -211,18 +215,15 @@ begin
    end;
 end;
 // *****************************************************************************
-procedure TmtMenuLateral.DestruirPainelFilho(Botao: TSpeedButton);
-var PainelFilho: TPanel;
-    NomePainel: String;
-    // xMenu: TmtMenu;
+procedure TmtMenuLateral.DestruirPainelFilho(Painel: TPanel);
+var cNome: String;
+    xMenu: TmtMenu;
 begin
-   NomePainel := Botao.Name + '_Pn';
-
-   PainelFilho := TPanel( Self.FindComponent(NomePainel) );
-   // xMenu := FMenus.Localizar(Botao.Name);
-
-   if PainelFilho <> NIL then begin
-      PainelFilho.Free;
+   cNome := Painel.Name;
+   cNome := Copy( cNome, 1, Length( cNome ) -3 ); // '_Pn'
+   xMenu := FMenus.Localizar(cNome);
+   if not xMenu.Foco then begin
+      Painel.Free;
    end;
 end;
 // *****************************************************************************
@@ -273,7 +274,7 @@ begin
       end;
    end;
 end;
-
+// *****************************************************************************
 procedure TmtMenuLateral.FechaMenu( Sender: TObject );
 begin
    if not FExecutei then begin
@@ -282,18 +283,12 @@ begin
    end;
    FTimer.Enabled := false;
 end;
-
+// *****************************************************************************
 procedure TmtMenuLateral.LimparFoco;
 var _i: Integer;
 begin
 
    FPainelMenu.Tag := 0;
-   {
-   // Limpa Panels de Menus...
-   for _i := 0 to FMenus.ComponentCount-1 do
-      if FMenus.Components[_i].ClassType = TPanel then
-         TPanel( FMenus.Components[_i] ).Tag := 0;
-   }
 
    // Limpa Menus...
    for _i := 0 to FMenus.Count -1 do
@@ -310,14 +305,22 @@ begin
        if FPainelMenu.Width <> FLarguraExpandida then
           FPainelMenu.Width := FLarguraExpandida;
 
-       for i := FPainelMenu.ComponentCount -1 to 0 do begin
+       for i := Self.ComponentCount-1 downto 0 do begin
+          if Self.Components[i].ClassType = TPanel then begin
+             DestruirPainelFilho( TPanel( Self.Components[i] ) );
+          end;
+       end;
+
+       for i := FPainelMenu.ComponentCount -1 downto 0 do begin
           if FPainelMenu.Components[i].ClassType = TSpeedButton then begin
              Botao := TSpeedButton( FPainelMenu.Components[i] );
              xMenu := FMenus.Localizar(Botao.Name);
              if not xMenu.Foco then begin
-                DestruirPainelFilho( Botao );
+                // DestruirPainelFilho( Botao );
              end else begin
-                CriarPainelFilho( Botao );
+                if FMenus.ContarFilhos(xMenu.Nome) > 0 then begin
+                   CriarPainelFilho( Botao );
+                end;
              end;
           end;
        end;
@@ -326,38 +329,20 @@ begin
        if FPainelMenu.Width <> LARGURA_CONTRAIDA then
           FPainelMenu.Width := LARGURA_CONTRAIDA;
 
-       for i := FPainelMenu.ComponentCount -1 to 0 do begin
-          if FPainelMenu.Components[i].ClassType = TSpeedButton then begin
-             Botao := TSpeedButton( FPainelMenu.Components[i] );
-             xMenu := FMenus.Localizar(Botao.Name);
-             if not xMenu.Foco then begin
-                DestruirPainelFilho( Botao );
-             end;
+       for i := Self.ComponentCount-1 downto 0 do begin
+          if Self.Components[i].ClassType = TPanel then begin
+             DestruirPainelFilho( TPanel( Self.Components[i] ) );
           end;
        end;
-
    end;
 end;
 // *****************************************************************************
 procedure TmtMenuLateral.SairDoComponente(Sender: TObject);
-var MovMenu: TThread;
 begin
    LimparFoco;
    FLog.Add('TmtMenuLateral.SairDoComponente:' + TComponent(Sender).Name);
    FExecutei := false;
    FTimer.Enabled := true;
-   {
-   MovMenu := TThread.CreateAnonymousThread(
-              procedure
-              begin
-                 Sleep(1000);
-                 if not FExecutei then begin
-                    Self.MovimentarMenu;
-                 end;
-              end );
-   MovMenu.FreeOnTerminate := true;
-   MovMenu.Start;
-   }
 end;
 // *****************************************************************************
 procedure TmtMenuLateral.SetFAtivo(const Value: Boolean);
