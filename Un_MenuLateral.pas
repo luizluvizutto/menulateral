@@ -13,7 +13,7 @@ uses Classes, SysUtils, StrUtils, DateUtils, Dialogs,
 const
    LARGURA_CONTRAIDA = 36;
    LARGURA_EXPANDIDA = 200;
-   ALTURA_BOTAO = 45;
+   ALTURA_BOTAO = 43;
    INTERVALO = 400;
 
 type
@@ -27,7 +27,6 @@ type
       FAtivo: Boolean;
       FPainelFalso: TPanel;
       FPainelMenu: TPanel;
-      FCor: TColor;
       FMenus: TmtMenus;
       FLog: TStrings;
       FLarguraExpandida: Integer;
@@ -58,11 +57,13 @@ type
       procedure FechaMenu( Sender: TObject );
 
       procedure ImagemDefault( Img: TBitMap );
+      procedure SetFCor(const Value: TColor);
+      function GetFCor: TColor;
 
 
    public
       property Ativo: Boolean   read FAtivo   write SetFAtivo;
-      property Cor: TColor      read FCor     write FCor;
+      property Cor: TColor      read GetFCor  write SetFCor;
       property Menus: TmtMenus  read FMenus   write FMenus;
       property PathImg: String  read FPathImg write FPathImg;
       property Log: TStrings    read FLog              write FLog;
@@ -80,7 +81,7 @@ procedure TmtMenuLateral.ConfiguraMenu(Painel: TPanel);
 begin
    Painel.ParentBackground := false;
    Painel.ParentColor := false;
-   Painel.Color := FCor;
+   Painel.Color := FMenus.CorNivel[0];
    Painel.BevelOuter := bvNone;
    Painel.ParentBackground := false;
    Painel.Font.Name := 'Verdana';
@@ -96,9 +97,9 @@ constructor TmtMenuLateral.Create(AOwner: TComponent);
 begin
    inherited;
    FAtivo            := False;
-   FCor              := clSkyBlue;
    FLarguraExpandida := LARGURA_EXPANDIDA;
    FMenus := TmtMenus.Create(Self);
+   SetFCor( clSkyBlue );
 
    FTimer := TTimer.Create(Self);
    FTimer.Enabled  := false;
@@ -110,12 +111,13 @@ procedure TmtMenuLateral.CriarBotoes(Pn: TPanel; pai: String);
 var i: Integer;
     Botao: TSpeedButton;
 begin
-   for i := FMenus.Count-1 downto 0 do begin
+   for i := 0 to FMenus.Count-1 do begin
       if FMenus.Menu[i].Pai = pai then begin
          Botao := TSpeedButton.Create(Pn);
          Botao.Parent  := Pn;
 
          Botao.Align   := alTop;
+         Botao.Top     := 2000;
          Botao.Height  := ALTURA_BOTAO;
          Botao.Flat    := True;
          Botao.Margin  := 2;
@@ -181,16 +183,22 @@ begin
       PainelFilho.Width  := FPainelMenu.Width;
       PainelFilho.Height := 150;
       ConfiguraMenu(PainelFilho);
+      PainelFilho.Color := FMenus.CorNivel[xMenu.Nivel];
       PainelFilho.Parent := TWinControl( FPainelMenu.Owner );
 
       CriarBotoes(PainelFilho,xMenu.Nome);
    end;
 
    // Verifica Filhos...
-   FLog.Add('Verificando Filhos');
+   if FLog <> NIL then
+      FLog.Add('Verificando Filhos');
+
    for i := 0 to PainelFilho.ComponentCount-1 do begin
       Botao := TSpeedButton( PainelFilho.Components[i] );
-      FLog.Add(Botao.Name);
+
+      if FLog <> NIL then
+         FLog.Add(Botao.Name);
+
       xMenu := FMenus.Localizar(Botao.Name);
       if xMenu.Foco then begin
          if FMenus.ContarFilhos(xMenu.Nome) > 0 then begin
@@ -198,7 +206,9 @@ begin
          end;
       end;
    end;
-   FLog.Add('Fim da verificação dos filhos');
+
+   if FLog <> NIL then
+      FLog.Add('Fim da verificação dos filhos');
 
 end;
 // *****************************************************************************
@@ -254,7 +264,9 @@ begin
    Componente := TWinControl( Sender );
    FExecutei  := true;
 
-   FLog.Add('TmtMenuLateral.EntrarNoComponente:' + Componente.Name);
+   if FLog <> NIL then
+      FLog.Add('TmtMenuLateral.EntrarNoComponente:' + Componente.Name);
+
    try
 
       if Componente.ClassType = TPanel then begin
@@ -266,6 +278,7 @@ begin
          LigarPai( xMenu.Pai );
       end;
 
+      {
       begin
          var i: Integer;
          FLog.Add('***');
@@ -274,11 +287,16 @@ begin
          end;
          FLog.Add('***');
       end;
+      }
 
       MovimentarMenu;
    except
       on E: Exception do begin
-         FLog.Add('Erro: ' + E.Message);
+         if FLog <> NIL then begin
+            FLog.Add('Erro: ' + E.Message);
+         end else begin
+            raise Exception.Create(E.Message);
+         end;
       end;
    end;
 end;
@@ -291,7 +309,12 @@ begin
    end;
    FTimer.Enabled := false;
 end;
-
+// *****************************************************************************
+function TmtMenuLateral.GetFCor: TColor;
+begin
+   Result := FMenus.CorNivel[0];
+end;
+// *****************************************************************************
 procedure TmtMenuLateral.ImagemDefault(Img: TBitMap);
 const cHEX = '07544269746D617036100000424D361000000000000036000000280000002000'+
       '0000200000000100200000000000001000000000000000000000000000000000'+
@@ -506,7 +529,9 @@ end;
 procedure TmtMenuLateral.SairDoComponente(Sender: TObject);
 begin
    LimparFoco;
-   FLog.Add('TmtMenuLateral.SairDoComponente:' + TComponent(Sender).Name);
+   if FLog <> NIL then
+      FLog.Add('TmtMenuLateral.SairDoComponente:' + TComponent(Sender).Name);
+
    FExecutei := false;
    FTimer.Enabled := true;
 end;
@@ -525,6 +550,13 @@ begin
    end;
 end;
 
+
+procedure TmtMenuLateral.SetFCor(const Value: TColor);
+var i: Integer;
+begin
+   for i := 0 to 10 do
+      FMenus.CorNivel[i] := Value;
+end;
 
 // *****************************************************************************
 end.

@@ -2,7 +2,8 @@ unit Un_MenuLateralDef;
 
 interface
 
-uses Classes, SysUtils;
+uses Classes, SysUtils,
+     Graphics;
 
 type
 
@@ -28,10 +29,15 @@ type
    TmtMenus = class( TComponent )
    private
       FList: TList;
+      FCores: array[0..10] of TColor;
       function GetMenu(index: Integer): TmtMenu;
       procedure SetMenu(index: Integer; const Value: TmtMenu);
+      function GetFCores(index: Integer): TColor;
+      procedure SetFCores(index: Integer; const Value: TColor);
+
    public
-      property Menu[index: Integer]: TmtMenu read GetMenu write SetMenu;
+      property Menu[index: Integer]: TmtMenu read GetMenu   write SetMenu;
+      property CorNivel[index: Integer]: TColor   read GetFCores write SetFCores;
       function Add( Pai, Nome, Caption: String; Procedimento: TNotifyEvent; Imagem: String ): TmtMenu;
       function Localizar( Nome: String ): TmtMenu;
       function Count: Integer;
@@ -100,6 +106,11 @@ begin
    inherited;
 end;
 // *****************************************************************************
+function TmtMenus.GetFCores(index: Integer): TColor;
+begin
+   Result := FCores[index];
+end;
+// *****************************************************************************
 function TmtMenus.GetMenu(index: Integer): TmtMenu;
 begin
    Result := TmtMenu( FList[index] );
@@ -117,10 +128,14 @@ begin
    end;
 end;
 // *****************************************************************************
+procedure TmtMenus.SetFCores(index: Integer; const Value: TColor);
+begin
+   FCores[index] := Value;
+end;
+// *****************************************************************************
 procedure TmtMenus.SetMenu(index: Integer; const Value: TmtMenu);
 begin
    FList[index] := Value;
 end;
 // *****************************************************************************
-
 end.
