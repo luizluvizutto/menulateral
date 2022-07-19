@@ -1,6 +1,6 @@
 # Simples Menu Lateral criado com panel e speedbutton
 
-´´´  
+```  
 Uses
   Un_MenuLateral,
   Un_MenuLateralDef;
@@ -40,6 +40,6 @@ begin
 
    FMenuLateral.Ativo := true;
 end;
-´´´  
+```
 
 ###### Doação colaboração chave pix: 2d405f0d-ea0e-4152-bc7c-6f3a7e476b92
