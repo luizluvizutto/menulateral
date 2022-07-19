@@ -51,7 +51,6 @@ type
       procedure CriarBotoes(Pn: TPanel; pai: String);
       procedure CriarPainelFilho(Botao: TSpeedButton);
 
-      // procedure DestruirPainelFilho(Botao: TSpeedButton); overload;
       procedure DestruirPainelFilho(Painel: TPanel);
 
       procedure FechaMenu( Sender: TObject );
@@ -178,13 +177,13 @@ begin
    if PainelFilho = NIL then begin
       PainelFilho := TPanel.Create(Self);
       PainelFilho.Name   := NomePainel;
+      PainelFilho.Parent := TWinControl( FPainelMenu.Owner );
       PainelFilho.Top    := Botao.Top + TPanel( Botao.Parent ).Top;
       PainelFilho.Left   := FPainelMenu.Width * xMenu.Nivel;
       PainelFilho.Width  := FPainelMenu.Width;
       PainelFilho.Height := 150;
       ConfiguraMenu(PainelFilho);
       PainelFilho.Color := FMenus.CorNivel[xMenu.Nivel];
-      PainelFilho.Parent := TWinControl( FPainelMenu.Owner );
 
       CriarBotoes(PainelFilho,xMenu.Nome);
    end;

@@ -16,6 +16,7 @@ type
       FImagem: String;
       FFoco: Boolean;
       FNivel: Integer;
+      FPosicao: Integer;
    public
       property Pai: String                read FPai          write FPai;
       property Nome: String               read FNome         write FNome;
@@ -24,6 +25,7 @@ type
       property imagem: String             read FImagem       write FImagem;
       property Foco: Boolean              read FFoco         write FFoco;
       property Nivel: Integer             read FNivel        write FNivel;
+      property Posicao: Integer           read FPosicao      write FPosicao;
    end;
 
    TmtMenus = class( TComponent )
@@ -67,6 +69,8 @@ begin
       end else begin
          Result.Nivel := Localizar(Pai).Nivel + 1;
       end;
+
+      Result.Posicao := ContarFilhos(Pai) + 1;
 
       FList.Add(Result);
    end else begin

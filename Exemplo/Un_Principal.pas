@@ -7,23 +7,20 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
 
   Un_MenuLateral,
-  Un_MenuLateralDef, Vcl.ExtCtrls;
+  Un_MenuLateralDef,
+
+  Vcl.ExtCtrls;
 
 type
-
-  TGraphicAccess = class(TGraphic)
-  end;
 
   TForm1 = class(TForm)
     BtMenus: TButton;
     MenuLateral: TButton;
     Memo1: TMemo;
     Button1: TButton;
-    Image1: TImage;
 
-    procedure MenuLateralClick(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
 
   private
     FMenuLateral: TmtMenuLateral;
@@ -40,27 +37,34 @@ implementation
 {$R *.dfm}
 
 // *****************************************************************************
+procedure TForm1.FormCreate(Sender: TObject);
+var cPath: String;
+begin
+   FMenuLateral := TmtMenuLateral.Create(Self);
+   // FMenuLateral.Log := Memo1.Lines;
+   cPath := ExtractFilePath( Application.ExeName );
+   FMenuLateral.PathImg := cPath + 'img\';
+   FMenuLateral.Cor := $00F9E9DB;
+   FMenuLateral.Menus.CorNivel[1] := $00F0CAA8;
+   FMenuLateral.Menus.CorNivel[2] := $00E9AF7C;
+
+   FMenuLateral.Menus.Add('',           'MnProduto',       'Produtos',  NIL, 'produto.bmp');
+   FMenuLateral.Menus.Add('MnProduto',  'MnProdSetor',     'Setor',     NIL, 'Picture.bmp');
+   FMenuLateral.Menus.Add('MnProduto',  'MnProdSubSetor',  'Sub-Setor',  NIL, 'Picture.bmp');
+
+   FMenuLateral.Menus.Add('',           'MnPessoa'   ,     'Pessoas',   NIL, 'Pessoa.bmp');
+   FMenuLateral.Menus.Add('',           'MnNFe',           'Notas Fiscais', NIL, 'NF-e.bmp');
+
+   FMenuLateral.Menus.Add('',           'MnFinanceiro',    'Financeiro', NIL, 'Financas.bmp');
+   FMenuLateral.Menus.Add('MnFinanceiro','MnFinanCPag',    'Contas a Pagar', NIL, 'CPagar.bmp');
+   FMenuLateral.Menus.Add('MnFinanceiro','MnFinanCRec',    'Contas a Receber', NIL, 'CReceber.bmp');
+   FMenuLateral.Ativo := true;
+end;
+// *****************************************************************************
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
    if FMenuLateral <> NIL then
       FMenuLateral.Free;
-end;
-
-procedure TForm1.MenuLateralClick(Sender: TObject);
-var cPath: String;
-begin
-   if FMenuLateral = NIL then begin
-      FMenuLateral := TmtMenuLateral.Create(Self);
-      FMenuLateral.Log := Memo1.Lines;
-      cPath := ExtractFilePath( Application.ExeName );
-      FMenuLateral.PathImg := cPath + 'img\';
-      FMenuLateral.Menus.Add('',           'MnProduto',       'Produtos',  NIL, 'produto.bmp');
-      FMenuLateral.Menus.Add('MnProduto',  'MnProdSetor',     'Setor',     NIL, 'Picture.bmp');
-      FMenuLateral.Menus.Add('MnProdSetor','MnProdSubSetor',  'SubSetor',  NIL, 'Picture.bmp');
-      FMenuLateral.Menus.Add('',           'MnPessoa'   ,     'Pessoas',   NIL, 'Pessoa.bmp');
-      FMenuLateral.Menus.Add('',           'MnNFe',           'Notas Fiscais', NIL, 'NF-e.bmp');
-      FMenuLateral.Ativo := true;
-   end;
 end;
 // *****************************************************************************
 end.

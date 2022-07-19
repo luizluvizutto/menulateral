@@ -1,5 +1,4 @@
-# MenuLateral
- Menu Lateral com SpeedButton
+# MenuLateral com SpeedButton
   
   uses
   Un_MenuLateral,

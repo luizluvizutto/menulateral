@@ -13,18 +13,13 @@ object Form1: TForm1
   FormStyle = fsMDIForm
   OldCreateOrder = False
   Position = poScreenCenter
+  OnCreate = FormCreate
   OnDestroy = FormDestroy
   DesignSize = (
     851
     458)
   PixelsPerInch = 96
   TextHeight = 13
-  object Image1: TImage
-    Left = 384
-    Top = 200
-    Width = 32
-    Height = 32
-  end
   object BtMenus: TButton
     Left = 463
     Top = 79
@@ -40,7 +35,6 @@ object Form1: TForm1
     Height = 25
     Caption = 'MenuLateral'
     TabOrder = 1
-    OnClick = MenuLateralClick
   end
   object Memo1: TMemo
     Left = 544
@@ -57,6 +51,5 @@ object Form1: TForm1
     Height = 25
     Caption = 'Free'
     TabOrder = 3
-    OnClick = Button1Click
   end
 end
