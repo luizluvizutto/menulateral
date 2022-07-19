@@ -43,3 +43,7 @@ end;
 ```
 
 ###### Doação colaboração chave pix: 2d405f0d-ea0e-4152-bc7c-6f3a7e476b92
+![MenuFechado](https://user-images.githubusercontent.com/31738097/179783116-19f93e7a-0fff-4715-b48c-6824e1961b23.png)
+
+![MenuAberto](https://user-images.githubusercontent.com/31738097/179783470-5cced8cf-d534-456c-b848-a34aa3b1d633.png)
+![MenuAberto1](https://user-images.githubusercontent.com/31738097/179783680-1cb61483-c788-4eed-8499-ddf996d208d1.png)
