@@ -45,6 +45,9 @@ type
       procedure SairDoComponente( Sender: TObject );
       procedure EntrarNoComponente( Sender: TObject );
 
+      procedure SairNegrito( Sender: TObject );
+      procedure EntrarNegrito( Sender: TObject );
+
       procedure LimparFoco;
 
       procedure MovimentarMenu;
@@ -176,15 +179,18 @@ begin
 
    if PainelFilho = NIL then begin
       PainelFilho := TPanel.Create(Self);
-      PainelFilho.Name   := NomePainel;
+      PainelFilho.Name    := NomePainel;
+      PainelFilho.Visible := false;
+
       PainelFilho.Parent := TWinControl( FPainelMenu.Owner );
       PainelFilho.Top    := Botao.Top + TPanel( Botao.Parent ).Top;
       PainelFilho.Left   := FPainelMenu.Width * xMenu.Nivel;
+
       PainelFilho.Width  := FPainelMenu.Width;
       PainelFilho.Height := 150;
       ConfiguraMenu(PainelFilho);
       PainelFilho.Color := FMenus.CorNivel[xMenu.Nivel];
-
+      PainelFilho.Visible := true;
       CriarBotoes(PainelFilho,xMenu.Nome);
    end;
 
@@ -240,10 +246,22 @@ begin
    cNome := Copy( cNome, 1, Length( cNome ) -3 ); // '_Pn'
    xMenu := FMenus.Localizar(cNome);
    if not xMenu.Foco then begin
+
+      if FLog <> NIL then begin
+         FLog.Add('Destruido: ' + Painel.Name);
+      end;
+
       Painel.Free;
    end;
 end;
 // *****************************************************************************
+procedure TmtMenuLateral.EntrarNegrito(Sender: TObject);
+begin
+   if Sender.ClassType = TSpeedButton then begin
+      TSpeedButton( Sender ).Font.Style := [TFontStyle.fsBold];
+   end;
+end;
+
 procedure TmtMenuLateral.EntrarNoComponente(Sender: TObject);
 var Componente: TWinControl;
     xMenu: TmtMenu;
@@ -260,6 +278,7 @@ var Componente: TWinControl;
    end;
 
 begin
+   // EntrarNegrito(Sender);
    Componente := TWinControl( Sender );
    FExecutei  := true;
 
@@ -527,6 +546,7 @@ end;
 // *****************************************************************************
 procedure TmtMenuLateral.SairDoComponente(Sender: TObject);
 begin
+   //SairNegrito(Sender);
    LimparFoco;
    if FLog <> NIL then
       FLog.Add('TmtMenuLateral.SairDoComponente:' + TComponent(Sender).Name);
@@ -534,6 +554,14 @@ begin
    FExecutei := false;
    FTimer.Enabled := true;
 end;
+
+procedure TmtMenuLateral.SairNegrito(Sender: TObject);
+begin
+   if Sender.ClassType = TSpeedButton then begin
+      TSpeedButton( Sender ).Font.Style := [];
+   end;
+end;
+
 // *****************************************************************************
 procedure TmtMenuLateral.SetFAtivo(const Value: Boolean);
 begin
