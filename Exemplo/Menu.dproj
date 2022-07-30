@@ -131,7 +131,7 @@
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="3">
-                <DeployFile LocalName="Win32\Debug\Menu.exe" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="Menu.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>Menu.exe</RemoteName>
                         <Overwrite>true</Overwrite>

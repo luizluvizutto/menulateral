@@ -17,6 +17,7 @@ type
       FFoco: Boolean;
       FNivel: Integer;
       FPosicao: Integer;
+      FVisivel: Boolean;
    public
       property Pai: String                read FPai          write FPai;
       property Nome: String               read FNome         write FNome;
@@ -26,6 +27,7 @@ type
       property Foco: Boolean              read FFoco         write FFoco;
       property Nivel: Integer             read FNivel        write FNivel;
       property Posicao: Integer           read FPosicao      write FPosicao;
+      property Visivel: Boolean           read FVisivel      write FVisivel;
    end;
 
    TmtMenus = class( TComponent )
@@ -44,8 +46,15 @@ type
       function Localizar( Nome: String ): TmtMenu;
       function Count: Integer;
       function ContarFilhos( nome: String ): Integer;
+
+      function GetLista: String;
+      procedure SetarLista( cLista: String );
+
       constructor Create(AOwner: TComponent); override;
       destructor Destroy; override;
+
+      procedure Assign(Source: TPersistent); override;
+
    end;
 
 implementation
@@ -71,6 +80,7 @@ begin
       end;
 
       Result.Posicao := ContarFilhos(Pai) + 1;
+      Result.Visivel := true;
 
       FList.Add(Result);
    end else begin
@@ -110,9 +120,68 @@ begin
    inherited;
 end;
 // *****************************************************************************
+procedure TmtMenus.Assign( Source: TPersistent );
+var i: Integer;
+    Origem: TmtMenus;
+
+  procedure Copiar(_nome: String);
+  var _i: Integer;
+  begin
+     for _i := 0 to Origem.Count -1 do begin
+        if Origem.Menu[_i].Pai = _nome then begin
+           Add( Origem.Menu[_i].Pai,
+                Origem.Menu[_i].Nome,
+                Origem.Menu[_i].Caption,
+                Origem.Menu[_i].procedimento,
+                Origem.Menu[_i].imagem
+              );
+
+           Copiar(Origem.Menu[_i].Nome);
+        end;
+     end;
+  end;
+
+begin
+ //  inherited;
+
+   for i := FList.Count -1 downto 0 do begin
+      TComponent( FList[i] ).Free;
+   end;
+
+   if Source is TmtMenus then begin
+      Origem := TmtMenus( Source );
+      Copiar( '' );
+   end;
+
+ end;
+
 function TmtMenus.GetFCores(index: Integer): TColor;
 begin
    Result := FCores[index];
+end;
+// *****************************************************************************
+function TmtMenus.GetLista: String;
+var i: Integer;
+    Lista: TStringList;
+
+    function TF( _bool:boolean ): String;
+    begin
+       if _bool then
+          Result := 'True'
+       else
+          Result := 'False';
+    end;
+begin
+   Lista := TStringList.Create;
+   try
+      Result := '';
+      for i := 0 to FList.Count -1 do begin
+         Lista.Values[ TmtMenu( FList[i] ).Nome ] := TF( TmtMenu( FList[i] ).Visivel )
+      end;
+      Result := Lista.Text;
+   finally
+      Lista.Free;
+   end;
 end;
 // *****************************************************************************
 function TmtMenus.GetMenu(index: Integer): TmtMenu;
@@ -129,6 +198,29 @@ begin
          Result := TmtMenu( FList[i] );
          Break;
       end;
+   end;
+end;
+// *****************************************************************************
+procedure TmtMenus.SetarLista(cLista: String);
+var Lista: TStringList;
+    i: Integer;
+    cValor: String;
+begin
+   Lista := TStringList.Create;
+   try
+      Lista.Text := cLista;
+      for i := 0 to FList.Count -1 do begin
+
+         cValor := Lista.Values[ TmtMenu( FList[i] ).Nome ];
+
+         if LowerCase( cValor ) = 'true' then begin
+            TmtMenu( FList[i] ).Visivel := true;
+         end else if LowerCase( cValor ) = 'false' then begin
+            TmtMenu( FList[i] ).Visivel := false;
+         end;
+      end;
+   finally
+      Lista.Free;
    end;
 end;
 // *****************************************************************************

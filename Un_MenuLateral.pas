@@ -31,6 +31,8 @@ type
       FLog: TStrings;
       FLarguraExpandida: Integer;
       FPathImg: String;
+      FListFunc: array of TNotifyEvent;
+
 
       FExecutei: Boolean;
 
@@ -62,6 +64,7 @@ type
       procedure SetFCor(const Value: TColor);
       function GetFCor: TColor;
 
+      procedure Clique( Sender: TObject );
 
    public
       property Ativo: Boolean   read FAtivo   write SetFAtivo;
@@ -73,11 +76,24 @@ type
 
       constructor Create(AOwner: TComponent); override;
       destructor Destroy; override;
-   end;
+end;
 
 implementation
 
 { TmtMenuLateral }
+
+procedure TmtMenuLateral.Clique(Sender: TObject);
+var B: TSpeedButton;
+    M: TmtMenu;
+begin
+   B := (Sender as TSpeedButton);
+   B.OnMouseLeave := NIL;
+   B.OnMouseEnter := NIL;
+   M := FMenus.Localizar(B.Name);
+   LimparFoco;
+   MovimentarMenu;
+   M.procedimento( Self );
+end;
 
 procedure TmtMenuLateral.ConfiguraMenu(Painel: TPanel);
 begin
@@ -115,28 +131,36 @@ var i: Integer;
 begin
    for i := 0 to FMenus.Count-1 do begin
       if FMenus.Menu[i].Pai = pai then begin
-         Botao := TSpeedButton.Create(Pn);
-         Botao.Parent  := Pn;
 
-         Botao.Align   := alTop;
-         Botao.Top     := 2000;
-         Botao.Height  := ALTURA_BOTAO;
-         Botao.Flat    := True;
-         Botao.Margin  := 2;
-         Botao.Name    := FMenus.Menu[i].Nome;
-         Botao.Caption := FMenus.Menu[i].Caption;
-         if FileExists( FPathImg + FMenus.Menu[i].Imagem ) then begin
-            Botao.Glyph.LoadFromFile(FPathImg + FMenus.Menu[i].Imagem);
-         end else begin
-            ImagemDefault(Botao.Glyph);
-         end;
-         Botao.OnClick := FMenus.Menu[i].Procedimento;
+         if FMenus.Menu[i].Visivel then begin
+            Botao := TSpeedButton.Create(Pn);
+            Botao.Parent  := Pn;
 
-         Botao.OnMouseEnter := EntrarNoComponente;
-         Botao.OnMouseLeave := SairDoComponente;
+            Botao.Align   := alTop;
+            Botao.Top     := 2000;
+            Botao.Height  := ALTURA_BOTAO;
+            Botao.Flat    := True;
+            Botao.Margin  := 2;
+            Botao.Name    := FMenus.Menu[i].Nome;
+            Botao.Caption := FMenus.Menu[i].Caption;
+            if FileExists( FPathImg + FMenus.Menu[i].Imagem ) then begin
+               Botao.Glyph.LoadFromFile(FPathImg + FMenus.Menu[i].Imagem);
+            end else begin
+               ImagemDefault(Botao.Glyph);
+            end;
 
-         if Pn.Name <> 'FPainelMenu' then begin
-            Pn.Height := ALTURA_BOTAO * Pn.ControlCount
+            if Assigned( FMenus.Menu[i].Procedimento ) then begin
+               Botao.OnClick := Clique;
+            end else begin
+               Botao.Font.Color := clGrayText;
+            end;
+
+            Botao.OnMouseEnter := EntrarNoComponente;
+            Botao.OnMouseLeave := SairDoComponente;
+
+            if Pn.Name <> 'FPainelMenu' then begin
+               Pn.Height := ALTURA_BOTAO * Pn.ControlCount
+            end;
          end;
       end;
    end;
@@ -214,7 +238,6 @@ begin
 
    if FLog <> NIL then
       FLog.Add('Fim da verificação dos filhos');
-
 end;
 // *****************************************************************************
 destructor TmtMenuLateral.Destroy;
@@ -261,7 +284,7 @@ begin
       TSpeedButton( Sender ).Font.Style := [TFontStyle.fsBold];
    end;
 end;
-
+// *****************************************************************************
 procedure TmtMenuLateral.EntrarNoComponente(Sender: TObject);
 var Componente: TWinControl;
     xMenu: TmtMenu;
@@ -278,15 +301,13 @@ var Componente: TWinControl;
    end;
 
 begin
-   // EntrarNegrito(Sender);
+   EntrarNegrito(Sender);
    Componente := TWinControl( Sender );
    FExecutei  := true;
-
    if FLog <> NIL then
       FLog.Add('TmtMenuLateral.EntrarNoComponente:' + Componente.Name);
 
    try
-
       if Componente.ClassType = TPanel then begin
          Componente.Tag := 1;
       end else begin
@@ -295,18 +316,6 @@ begin
          xMenu.Foco := True;
          LigarPai( xMenu.Pai );
       end;
-
-      {
-      begin
-         var i: Integer;
-         FLog.Add('***');
-         for i := 0 to FMenus.Count-1 do begin
-            FLog.Add(FMenus.Menu[i].Nome + '|' + FMenus.Menu[i].Foco.ToString );
-         end;
-         FLog.Add('***');
-      end;
-      }
-
       MovimentarMenu;
    except
       on E: Exception do begin
@@ -467,40 +476,29 @@ const cHEX = '07544269746D617036100000424D361000000000000036000000280000002000'+
       '0000';
 var Loutput :TMemoryStream;
     LclsName: ShortString;
-    // Lgraphic: TGraphic;
 begin
+   Loutput := TMemoryStream.Create;
+   try
+      Loutput.Size := Length(cHex) div 2;
+      HexToBin(PChar(cHex), Loutput.Memory^, Loutput.Size);
 
-  Loutput := TMemoryStream.Create;
-  try
-    Loutput.Size := Length(cHex) div 2;
-    HexToBin(PChar(cHex), Loutput.Memory^, Loutput.Size);
+      LclsName := PShortString(Loutput.Memory)^;
 
-    LclsName := PShortString(Loutput.Memory)^;
-
-    // Lgraphic := TBitmap.Create;
-    try
       Loutput.Position := 1 + Length(LclsName);
       TGraphicAccess(Img).ReadData(Loutput);
-      // Img.Assign(Lgraphic);
-    finally
-      //Lgraphic.Free;
-    end;
-  finally
-    Loutput.Free;
-  end;
+   finally
+      Loutput.Free;
+   end;
 end;
-
 // *****************************************************************************
 procedure TmtMenuLateral.LimparFoco;
 var _i: Integer;
 begin
-
    FPainelMenu.Tag := 0;
 
    // Limpa Menus...
    for _i := 0 to FMenus.Count -1 do
       FMenus.Menu[_i].Foco := false;
-
 end;
 // *****************************************************************************
 procedure TmtMenuLateral.MovimentarMenu;
@@ -546,7 +544,7 @@ end;
 // *****************************************************************************
 procedure TmtMenuLateral.SairDoComponente(Sender: TObject);
 begin
-   //SairNegrito(Sender);
+   SairNegrito(Sender);
    LimparFoco;
    if FLog <> NIL then
       FLog.Add('TmtMenuLateral.SairDoComponente:' + TComponent(Sender).Name);
@@ -554,36 +552,30 @@ begin
    FExecutei := false;
    FTimer.Enabled := true;
 end;
-
+// *****************************************************************************
 procedure TmtMenuLateral.SairNegrito(Sender: TObject);
 begin
    if Sender.ClassType = TSpeedButton then begin
       TSpeedButton( Sender ).Font.Style := [];
    end;
 end;
-
 // *****************************************************************************
 procedure TmtMenuLateral.SetFAtivo(const Value: Boolean);
 begin
    if (FAtivo = False) and (Value = true) then begin
       CriarPaineis;
-
       FAtivo := Value;
    end else if ( FAtivo = True ) and (Value = False) then begin
-
-
       DestruirPaineis;
       FAtivo := Value;
    end;
 end;
-
-
+// *****************************************************************************
 procedure TmtMenuLateral.SetFCor(const Value: TColor);
 var i: Integer;
 begin
    for i := 0 to 10 do
       FMenus.CorNivel[i] := Value;
 end;
-
 // *****************************************************************************
 end.
