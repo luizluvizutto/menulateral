@@ -78,6 +78,14 @@ type
       destructor Destroy; override;
 end;
 
+   TmtConfiguraMenu = class( TComponent )
+   private
+      FMenus: TmtMenus;
+   public
+      property Menus: TmtMenus read FMenus write FMenus;
+      constructor Create(AOwner: TComponent); override;
+   end;
+
 implementation
 
 { TmtMenuLateral }
@@ -87,14 +95,18 @@ var B: TSpeedButton;
     M: TmtMenu;
 begin
    B := (Sender as TSpeedButton);
-   B.OnMouseLeave := NIL;
-   B.OnMouseEnter := NIL;
+
+
+   if B.Owner <> FPainelMenu then begin
+      B.OnMouseLeave := NIL;
+      B.OnMouseEnter := NIL;
+   end;
    M := FMenus.Localizar(B.Name);
    LimparFoco;
    MovimentarMenu;
    M.procedimento( Self );
 end;
-
+// *****************************************************************************
 procedure TmtMenuLateral.ConfiguraMenu(Painel: TPanel);
 begin
    Painel.ParentBackground := false;
@@ -578,4 +590,12 @@ begin
       FMenus.CorNivel[i] := Value;
 end;
 // *****************************************************************************
+{ TmtConfiguraMenu }
+
+constructor TmtConfiguraMenu.Create(AOwner: TComponent);
+begin
+   inherited;
+   FMenus := TmtMenus.Create(Self);
+end;
+
 end.

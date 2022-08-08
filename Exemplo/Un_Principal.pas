@@ -9,6 +9,8 @@ uses
   Un_MenuLateral,
   Un_MenuLateralDef,
 
+  Un_Configura,
+
   Vcl.ExtCtrls;
 
 type
@@ -36,14 +38,13 @@ type
 
     procedure FormDestroy(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure SalvarListaClick(Sender: TObject);
-    procedure LerListaClick(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
 
   private
-    FConfigura: TsiConfMenuLateral;
     FMenuLateral: TmtMenuLateral;
 
     procedure OK( Sender: TObject );
+    procedure Configurar( Sender: TObject );
     { Private declarations }
   public
     { Public declarations }
@@ -56,6 +57,23 @@ implementation
 
 {$R *.dfm}
 
+// *****************************************************************************
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+   Configurar(NIL);
+end;
+
+procedure TForm1.Configurar(Sender: TObject);
+var x: TForm2;
+begin
+   x := TForm2.Create(Self);
+   try
+     x.Menus := FMenuLateral.Menus;
+     x.ShowModal;
+   finally
+     x.Free;
+   end;
+end;
 // *****************************************************************************
 procedure TForm1.FormCreate(Sender: TObject);
 begin
@@ -88,9 +106,11 @@ begin
      FMenuLateral.Menus.Add('MnFinanceiro','MnFinanCPag',     'Contas a Pagar',   OK, 'CPagar.bmp');
      FMenuLateral.Menus.Add('MnFinanceiro','MnFinanCRec',     'Contas a Receber', OK, 'CReceber.bmp');
 
-   FMenuLateral.Menus.Add('',              'MnCompras',       'Compras',          OK, 'Compras.bmp');
-   FMenuLateral.Menus.Add('',              'MOrdemServico',   'Ordem de Serviço', OK, 'OS.bmp');
-   FMenuLateral.Menus.Add('',              'MnAcesso',        'Acessos',       OK, 'Acessos.bmp');
+   FMenuLateral.Menus.Add('',              'MnCompras',       'Compras',           OK, 'Compras.bmp');
+   FMenuLateral.Menus.Add('',              'MOrdemServico',   'Ordem de Serviço',  OK, 'OS.bmp');
+   FMenuLateral.Menus.Add('',              'MnAcesso',        'Acessos',           OK, 'Acessos.bmp');
+
+   FMenuLateral.Menus.Add('',              'MnConfiguracao',  'Configuração Menu', Configurar, 'OS.bmp');
 
    FMenuLateral.Ativo := true;
 end;
@@ -100,7 +120,6 @@ begin
    if FMenuLateral <> NIL then
       FMenuLateral.Free;
 
-   FConfigura.Free;
 end;
 
 procedure TForm1.OK(Sender: TObject);
@@ -167,13 +186,13 @@ begin
    inherited;
    FMenus := TmtMenus.Create(Self);
 end;
-
+// *****************************************************************************
 destructor TsiConfMenuLateral.Destroy;
 begin
    FMenus.Free;
    inherited;
 end;
-
+// *****************************************************************************
 procedure TsiConfMenuLateral.Limpar;
 var i: Integer;
 begin
