@@ -20,11 +20,10 @@ uses Classes, SysUtils, StrUtils, DateUtils, Dialogs,
 const
    LARGURA_CONTRAIDA = 36;
    LARGURA_EXPANDIDA = 200;
-   ALTURA_BOTAO = 43;
-   INTERVALO = 400;
+   ALTURA_BOTAO = 39;
+   INTERVALO = 100;
 
 type
-
 
    TGraphicAccess = class(TGraphic)
    end;
@@ -44,6 +43,7 @@ type
       FExecutei: Boolean;
 
       FTimer: TTimer;
+      FAlturaBarraStatus: Integer;
 
       procedure SetFAtivo(const Value: Boolean);
       procedure ConfiguraMenu( Painel: TPanel );
@@ -72,14 +72,18 @@ type
       function GetFCor: TColor;
 
       procedure Clique( Sender: TObject );
+      function GetFCorFonte: TColor;
+      procedure SetFCorFonte(const Value: TColor);
 
    public
-      property Ativo: Boolean   read FAtivo   write SetFAtivo;
-      property Cor: TColor      read GetFCor  write SetFCor;
-      property Menus: TmtMenus  read FMenus   write FMenus;
-      property PathImg: String  read FPathImg write FPathImg;
-      property Log: TStrings    read FLog              write FLog;
-      property Largura: Integer read FLarguraExpandida write FLarguraExpandida;
+      property Ativo: Boolean    read FAtivo   write SetFAtivo;
+      property Cor: TColor       read GetFCor  write SetFCor;
+      property CorFonte: TColor  read GetFCorFonte  write SetFCorFonte;
+      property Menus: TmtMenus   read FMenus   write FMenus;
+      property PathImg: String   read FPathImg write FPathImg;
+      property Log: TStrings     read FLog              write FLog;
+      property Largura: Integer  read FLarguraExpandida write FLarguraExpandida;
+      property AlturaBarraStatus: Integer read FAlturaBarraStatus write FAlturaBarraStatus;
 
       constructor Create(AOwner: TComponent); override;
       destructor Destroy; override;
@@ -122,6 +126,7 @@ begin
    Painel.BevelOuter := bvNone;
    Painel.ParentBackground := false;
    Painel.Font.Name := 'Verdana';
+   Painel.Font.Size := 8;
    Painel.AlignWithMargins := false;
    Painel.Margins.Left := 0;
    Painel.Margins.Right := 0;
@@ -133,10 +138,12 @@ end;
 constructor TmtMenuLateral.Create(AOwner: TComponent);
 begin
    inherited;
-   FAtivo            := False;
-   FLarguraExpandida := LARGURA_EXPANDIDA;
+   FAtivo             := False;
+   FLarguraExpandida  := LARGURA_EXPANDIDA;
+   FAlturaBarraStatus := 0;
    FMenus := TmtMenus.Create(Self);
    SetFCor( clSkyBlue );
+   SetFCorFonte( clBlack );
 
    FTimer := TTimer.Create(Self);
    FTimer.Enabled  := false;
@@ -155,6 +162,7 @@ begin
             Botao := TSpeedButton.Create(Pn);
             Botao.Parent  := Pn;
 
+            Botao.Font.Color := FMenus.CorNivelFonte[FMenus.Menu[i].Nivel];
             Botao.Align   := alTop;
             Botao.Top     := 2000;
             Botao.Height  := ALTURA_BOTAO;
@@ -170,8 +178,8 @@ begin
 
             if Assigned( FMenus.Menu[i].Procedimento ) then begin
                Botao.OnClick := Clique;
-            end else begin
-               Botao.Font.Color := clGrayText;
+            //end else begin
+            //   Botao.Font.Color := clGrayText;
             end;
 
             Botao.OnMouseEnter := EntrarNoComponente;
@@ -198,7 +206,7 @@ begin
    FPainelMenu.Parent  := TWinControl(Owner);
    FPainelMenu.Top     := 0;
    FPainelMenu.Left    := 0;
-   FPainelMenu.Height  := TWinControl( Owner ).ClientHeight;
+   FPainelMenu.Height  := TWinControl( Owner ).ClientHeight - FAlturaBarraStatus;
    FPainelMenu.Anchors := [akLeft, akTop, akBottom];
    FPainelMenu.Width   := LARGURA_CONTRAIDA;
    FPainelMenu.OnMouseLeave := SairDoComponente;
@@ -359,6 +367,11 @@ end;
 function TmtMenuLateral.GetFCor: TColor;
 begin
    Result := FMenus.CorNivel[0];
+end;
+// *****************************************************************************
+function TmtMenuLateral.GetFCorFonte: TColor;
+begin
+   Result := FMenus.CorNivelFonte[0];
 end;
 // *****************************************************************************
 procedure TmtMenuLateral.ImagemDefault(Img: TBitMap);
@@ -595,6 +608,13 @@ var i: Integer;
 begin
    for i := 0 to 10 do
       FMenus.CorNivel[i] := Value;
+end;
+// *****************************************************************************
+procedure TmtMenuLateral.SetFCorFonte(const Value: TColor);
+var i: Integer;
+begin
+   for i := 0 to 10 do
+      FMenus.CorNivelFonte[i] := Value;
 end;
 // *****************************************************************************
 { TmtConfiguraMenu }

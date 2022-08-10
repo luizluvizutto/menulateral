@@ -34,14 +34,18 @@ type
    private
       FList: TList;
       FCores: array[0..10] of TColor;
+      FCoresFonte: array[0..10] of TColor;
       function GetMenu(index: Integer): TmtMenu;
       procedure SetMenu(index: Integer; const Value: TmtMenu);
       function GetFCores(index: Integer): TColor;
       procedure SetFCores(index: Integer; const Value: TColor);
+      function GetFCoresFonte(index: Integer): TColor;
+      procedure SetFCoresFonte(index: Integer; const Value: TColor);
 
    public
       property Menu[index: Integer]: TmtMenu read GetMenu   write SetMenu;
       property CorNivel[index: Integer]: TColor   read GetFCores write SetFCores;
+      property CorNivelFonte[index: Integer]: TColor   read GetFCoresFonte write SetFCoresFonte;
       function Add( Pai, Nome, Caption: String; Procedimento: TNotifyEvent; Imagem: String ): TmtMenu;
       function Localizar( Nome: String ): TmtMenu;
       function Count: Integer;
@@ -160,6 +164,11 @@ begin
    Result := FCores[index];
 end;
 // *****************************************************************************
+function TmtMenus.GetFCoresFonte(index: Integer): TColor;
+begin
+   Result := FCoresFonte[index];
+end;
+// *****************************************************************************
 function TmtMenus.GetLista: String;
 var i: Integer;
     Lista: TStringList;
@@ -227,6 +236,11 @@ end;
 procedure TmtMenus.SetFCores(index: Integer; const Value: TColor);
 begin
    FCores[index] := Value;
+end;
+// *****************************************************************************
+procedure TmtMenus.SetFCoresFonte(index: Integer; const Value: TColor);
+begin
+   FCoresFonte[index] := Value;
 end;
 // *****************************************************************************
 procedure TmtMenus.SetMenu(index: Integer; const Value: TmtMenu);
