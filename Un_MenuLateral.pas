@@ -4,10 +4,17 @@ interface
 
 uses Classes, SysUtils, StrUtils, DateUtils, Dialogs,
      Graphics,
+     {$IFDEF VER220}
+     Forms,
+     ExtCtrls,
+     Controls,
+     Buttons,
+     {$ELSE}
      Vcl.Forms,
      Vcl.ExtCtrls,
      Vcl.Controls,
      Vcl.Buttons,
+     {$ENDIF}
      Un_MenuLateralDef;
 
 const
