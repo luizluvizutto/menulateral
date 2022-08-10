@@ -79,8 +79,8 @@ procedure TForm1.FormCreate(Sender: TObject);
 begin
 
    FMenuLateral := TmtMenuLateral.Create(Self);
-   // FMenuLateral.PathImg := ExtractFilePath( Application.ExeName ) + 'img\';
-   FMenuLateral.PathImg := 'C:\DesenvolWin\EstoqueWinXE\ArquivoRes\BitMaps\';
+   FMenuLateral.PathImg := ExtractFilePath( Application.ExeName ) + 'img\';
+   // FMenuLateral.PathImg := 'C:\DesenvolWin\EstoqueWinXE\ArquivoRes\BitMaps\';
    FMenuLateral.Cor := $00F9E9DB;
    // FMenuLateral.Log := Memo1.Lines;
    FMenuLateral.Menus.CorNivel[1]  := $00E3E3FF;
