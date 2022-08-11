@@ -20,7 +20,7 @@ uses Classes, SysUtils, StrUtils, DateUtils, Dialogs,
 const
    LARGURA_CONTRAIDA = 36;
    LARGURA_EXPANDIDA = 200;
-   ALTURA_BOTAO = 39;
+   ALTURA_BOTAO = 38;
    INTERVALO = 100;
 
 type
