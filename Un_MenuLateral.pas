@@ -44,6 +44,7 @@ type
 
       FTimer: TTimer;
       FAlturaBarraStatus: Integer;
+    FExpandir: Boolean;
 
       procedure SetFAtivo(const Value: Boolean);
       procedure ConfiguraMenu( Painel: TPanel );
@@ -84,6 +85,7 @@ type
       property Log: TStrings     read FLog              write FLog;
       property Largura: Integer  read FLarguraExpandida write FLarguraExpandida;
       property AlturaBarraStatus: Integer read FAlturaBarraStatus write FAlturaBarraStatus;
+      property Expandir: Boolean read FExpandir write FExpandir;
 
       constructor Create(AOwner: TComponent); override;
       destructor Destroy; override;
@@ -141,6 +143,7 @@ begin
    FAtivo             := False;
    FLarguraExpandida  := LARGURA_EXPANDIDA;
    FAlturaBarraStatus := 0;
+   FExpandir          := true;
    FMenus := TmtMenus.Create(Self);
    SetFCor( clSkyBlue );
    SetFCorFonte( clBlack );
@@ -235,9 +238,13 @@ begin
 
       PainelFilho.Parent := TWinControl( FPainelMenu.Owner );
       PainelFilho.Top    := Botao.Top + TPanel( Botao.Parent ).Top;
-      PainelFilho.Left   := FPainelMenu.Width * xMenu.Nivel;
+      if FExpandir then begin
+         PainelFilho.Left   := FPainelMenu.Width * xMenu.Nivel;
+      end else begin
+         PainelFilho.Left   := ( LARGURA_EXPANDIDA * xMenu.Nivel ) - ( LARGURA_EXPANDIDA - LARGURA_CONTRAIDA );
+      end;
 
-      PainelFilho.Width  := FPainelMenu.Width;
+      PainelFilho.Width  :=  LARGURA_EXPANDIDA; // FPainelMenu.Width;
       PainelFilho.Height := 150;
       ConfiguraMenu(PainelFilho);
       PainelFilho.Color := FMenus.CorNivel[xMenu.Nivel];
@@ -539,8 +546,11 @@ var i: Integer;
     xMenu: TmtMenu;
 begin
    if FPainelMenu.Tag = 1 then begin
-       if FPainelMenu.Width <> FLarguraExpandida then
-          FPainelMenu.Width := FLarguraExpandida;
+
+       if FExpandir then begin
+          if FPainelMenu.Width <> FLarguraExpandida then
+             FPainelMenu.Width := FLarguraExpandida;
+       end;
 
        for i := Self.ComponentCount-1 downto 0 do begin
           if Self.Components[i].ClassType = TPanel then begin
@@ -563,8 +573,11 @@ begin
        end;
 
    end else begin
-       if FPainelMenu.Width <> LARGURA_CONTRAIDA then
-          FPainelMenu.Width := LARGURA_CONTRAIDA;
+
+       if FExpandir then begin
+          if FPainelMenu.Width <> LARGURA_CONTRAIDA then
+             FPainelMenu.Width := LARGURA_CONTRAIDA;
+       end;
 
        for i := Self.ComponentCount-1 downto 0 do begin
           if Self.Components[i].ClassType = TPanel then begin
