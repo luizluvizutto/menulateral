@@ -18,6 +18,7 @@ type
       FNivel: Integer;
       FPosicao: Integer;
       FVisivel: Boolean;
+      FHint: String;
    public
       property Pai: String                read FPai          write FPai;
       property Nome: String               read FNome         write FNome;
@@ -28,6 +29,7 @@ type
       property Nivel: Integer             read FNivel        write FNivel;
       property Posicao: Integer           read FPosicao      write FPosicao;
       property Visivel: Boolean           read FVisivel      write FVisivel;
+      property Hint: String               read FHint         write FHint;
    end;
 
    TmtMenus = class( TComponent )
@@ -46,7 +48,7 @@ type
       property Menu[index: Integer]: TmtMenu read GetMenu   write SetMenu;
       property CorNivel[index: Integer]: TColor   read GetFCores write SetFCores;
       property CorNivelFonte[index: Integer]: TColor   read GetFCoresFonte write SetFCoresFonte;
-      function Add( Pai, Nome, Caption: String; Procedimento: TNotifyEvent; Imagem: String ): TmtMenu;
+      function Add( Pai, Nome, Caption: String; Procedimento: TNotifyEvent; Imagem: String; Hint: String = '' ): TmtMenu;
       function Localizar( Nome: String ): TmtMenu;
       function Count: Integer;
       function ContarFilhos( nome: String ): Integer;
@@ -66,7 +68,7 @@ implementation
 { TmtMenuDef }
 
 function TmtMenus.Add(Pai, Nome, Caption: String; Procedimento: TNotifyEvent;
-  Imagem: String): TmtMenu;
+  Imagem: String; Hint: String = ''): TmtMenu;
 begin
    if Localizar(Nome) = NIL then begin
       Result := TmtMenu.Create;
@@ -75,6 +77,7 @@ begin
       Result.Pai          := Pai;
       Result.procedimento := Procedimento;
       Result.Imagem       := Imagem;
+      Result.Hint         := Hint;
       Result.Foco         := false;
 
       if Pai = '' then begin

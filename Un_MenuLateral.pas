@@ -173,6 +173,9 @@ begin
             Botao.Margin  := 2;
             Botao.Name    := FMenus.Menu[i].Nome;
             Botao.Caption := FMenus.Menu[i].Caption;
+            Botao.Hint    := FMenus.Menu[i].Hint;
+            if Trim( FMenus.Menu[i].Hint ) <> '' then Botao.ShowHint := True;
+
             if FileExists( FPathImg + FMenus.Menu[i].Imagem ) then begin
                Botao.Glyph.LoadFromFile(FPathImg + FMenus.Menu[i].Imagem);
             end else begin
