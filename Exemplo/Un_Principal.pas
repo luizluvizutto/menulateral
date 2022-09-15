@@ -88,6 +88,8 @@ begin
    FMenuLateral.Menus.CorNivel[1]  := $00E3E3FF;
    FMenuLateral.Menus.CorNivel[2]  := $00DBFFED;
 
+   FMenuLateral.ExpandirNoClique := true;
+
    FMenuLateral.Menus.Add('',              'MnProduto',       'Produtos',         OK, 'produto.bmp');
      FMenuLateral.Menus.Add('MnProduto',   'MnProdPromocao',  'Promoções',        OK, 'Raio.bmp');
      FMenuLateral.Menus.Add('MnProduto',   'MnProdTrocar',    'Troca Vinculada',  OK, 'Trocar.bmp');

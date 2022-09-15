@@ -22,6 +22,7 @@ const
    LARGURA_EXPANDIDA = 200;
    ALTURA_BOTAO = 38;
    INTERVALO = 100;
+   INTERVALO_ONCLIQUE = 5000;
 
 type
 
@@ -43,8 +44,12 @@ type
       FExecutei: Boolean;
 
       FTimer: TTimer;
+      FTimerOnClique: TTimer;
       FAlturaBarraStatus: Integer;
-    FExpandir: Boolean;
+      // FExpandir: Boolean;
+      FExpandirNoClique: Boolean;
+
+      FLigado: Boolean;
 
       procedure SetFAtivo(const Value: Boolean);
       procedure ConfiguraMenu( Painel: TPanel );
@@ -67,6 +72,7 @@ type
       procedure DestruirPainelFilho(Painel: TPanel);
 
       procedure FechaMenu( Sender: TObject );
+      procedure DesligaFLigado( Sender: TObject );
 
       procedure ImagemDefault( Img: TBitMap );
       procedure SetFCor(const Value: TColor);
@@ -75,6 +81,7 @@ type
       procedure Clique( Sender: TObject );
       function GetFCorFonte: TColor;
       procedure SetFCorFonte(const Value: TColor);
+      procedure SetFExpandirNoClique(const Value: Boolean);
 
    public
       property Ativo: Boolean    read FAtivo   write SetFAtivo;
@@ -85,7 +92,8 @@ type
       property Log: TStrings     read FLog              write FLog;
       property Largura: Integer  read FLarguraExpandida write FLarguraExpandida;
       property AlturaBarraStatus: Integer read FAlturaBarraStatus write FAlturaBarraStatus;
-      property Expandir: Boolean read FExpandir write FExpandir;
+      // property Expandir: Boolean read FExpandir write FExpandir;
+      property ExpandirNoClique: Boolean read FExpandirNoClique write SetFExpandirNoClique;
 
       constructor Create(AOwner: TComponent); override;
       destructor Destroy; override;
@@ -109,6 +117,13 @@ var B: TSpeedButton;
 begin
    B := (Sender as TSpeedButton);
 
+   if FExpandirNoClique then begin
+      if not FLigado then begin
+         FTimerOnClique.Enabled := false;
+         FLigado := true;
+         exit;
+      end;
+   end;
 
    if B.Owner <> FPainelMenu then begin
       B.OnMouseLeave := NIL;
@@ -117,7 +132,13 @@ begin
    M := FMenus.Localizar(B.Name);
    LimparFoco;
    MovimentarMenu;
-   M.procedimento( Self );
+
+   if FExpandirNoClique then begin
+      FLigado := false;
+   end;
+
+   if Assigned(M.Procedimento) then
+      M.procedimento( Self );
 end;
 // *****************************************************************************
 procedure TmtMenuLateral.ConfiguraMenu(Painel: TPanel);
@@ -143,7 +164,9 @@ begin
    FAtivo             := False;
    FLarguraExpandida  := LARGURA_EXPANDIDA;
    FAlturaBarraStatus := 0;
-   FExpandir          := true;
+   FExpandirNoClique  := false;
+   // FExpandir          := true;
+   FLigado            := true;
    FMenus := TmtMenus.Create(Self);
    SetFCor( clSkyBlue );
    SetFCorFonte( clBlack );
@@ -152,6 +175,12 @@ begin
    FTimer.Enabled  := false;
    FTimer.Interval := INTERVALO;
    FTimer.OnTimer  := FechaMenu;
+
+   FTimerOnClique := TTimer.Create(Self);
+   FTimerOnClique.Enabled  := false;
+   FTimerOnClique.Interval := INTERVALO_ONCLIQUE;
+   FTimerOnClique.OnTimer  := DesligaFLigado;
+
 end;
 // *****************************************************************************
 procedure TmtMenuLateral.CriarBotoes(Pn: TPanel; pai: String);
@@ -182,11 +211,11 @@ begin
                ImagemDefault(Botao.Glyph);
             end;
 
-            if Assigned( FMenus.Menu[i].Procedimento ) then begin
-               Botao.OnClick := Clique;
+            //if Assigned( FMenus.Menu[i].Procedimento ) then begin
+            Botao.OnClick := Clique;
             //end else begin
             //   Botao.Font.Color := clGrayText;
-            end;
+           //  end;
 
             Botao.OnMouseEnter := EntrarNoComponente;
             Botao.OnMouseLeave := SairDoComponente;
@@ -241,11 +270,11 @@ begin
 
       PainelFilho.Parent := TWinControl( FPainelMenu.Owner );
       PainelFilho.Top    := Botao.Top + TPanel( Botao.Parent ).Top;
-      if FExpandir then begin
+      //if FExpandir then begin
          PainelFilho.Left   := FPainelMenu.Width * xMenu.Nivel;
-      end else begin
-         PainelFilho.Left   := ( LARGURA_EXPANDIDA * xMenu.Nivel ) - ( LARGURA_EXPANDIDA - LARGURA_CONTRAIDA );
-      end;
+      //end else begin
+      //   PainelFilho.Left   := ( LARGURA_EXPANDIDA * xMenu.Nivel ) - ( LARGURA_EXPANDIDA - LARGURA_CONTRAIDA );
+      //end;
 
       PainelFilho.Width  :=  LARGURA_EXPANDIDA; // FPainelMenu.Width;
       PainelFilho.Height := 150;
@@ -277,10 +306,19 @@ begin
       FLog.Add('Fim da verificação dos filhos');
 end;
 // *****************************************************************************
+procedure TmtMenuLateral.DesligaFLigado(Sender: TObject);
+begin
+   FLigado := false;
+   FTimerOnClique.Enabled := false;
+end;
+
 destructor TmtMenuLateral.Destroy;
 begin
    FTimer.Enabled := false;
-   FTimer.free;
+   FTimerOnClique.Enabled := false;
+
+   FTimerOnClique.Free;
+   FTimer.Free;
    SetFAtivo(false);
    FMenus.Free;
    inherited;
@@ -338,6 +376,13 @@ var Componente: TWinControl;
    end;
 
 begin
+
+   if FExpandirNoClique then begin
+      if Not FLigado then begin
+         exit;
+      end;
+   end;
+
    EntrarNegrito(Sender);
    Componente := TWinControl( Sender );
    FExecutei  := true;
@@ -370,6 +415,11 @@ begin
    if not FExecutei then begin
       FExecutei := true;
       MovimentarMenu;
+
+      if FExpandirNoClique then begin
+         FTimerOnClique.Enabled := true;
+      end;
+
    end;
    FTimer.Enabled := false;
 end;
@@ -550,10 +600,10 @@ var i: Integer;
 begin
    if FPainelMenu.Tag = 1 then begin
 
-       if FExpandir then begin
+//       if FExpandir then begin
           if FPainelMenu.Width <> FLarguraExpandida then
              FPainelMenu.Width := FLarguraExpandida;
-       end;
+//       end;
 
        for i := Self.ComponentCount-1 downto 0 do begin
           if Self.Components[i].ClassType = TPanel then begin
@@ -577,10 +627,10 @@ begin
 
    end else begin
 
-       if FExpandir then begin
+       // if FExpandir then begin
           if FPainelMenu.Width <> LARGURA_CONTRAIDA then
              FPainelMenu.Width := LARGURA_CONTRAIDA;
-       end;
+       // end;
 
        for i := Self.ComponentCount-1 downto 0 do begin
           if Self.Components[i].ClassType = TPanel then begin
@@ -632,6 +682,16 @@ begin
    for i := 0 to 10 do
       FMenus.CorNivelFonte[i] := Value;
 end;
+procedure TmtMenuLateral.SetFExpandirNoClique(const Value: Boolean);
+begin
+   FExpandirNoClique := Value;
+   if Value then
+      FLigado := false
+   else
+      FLigado := true;
+
+end;
+
 // *****************************************************************************
 { TmtConfiguraMenu }
 
