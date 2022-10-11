@@ -81,9 +81,10 @@ begin
    FMenuLateral := TmtMenuLateral.Create(Self);
    FMenuLateral.PathImg := ExtractFilePath( Application.ExeName ) + 'img\';
 
-   FMenuLateral.Expandir := true;
+   // FMenuLateral.Expandir := true;
    // FMenuLateral.PathImg := 'C:\DesenvolWin\EstoqueWinXE\ArquivoRes\BitMaps\';
    FMenuLateral.Cor := $00F9E9DB;
+   FMenuLateral.ExpandirNoClique := true;
    // FMenuLateral.Log := Memo1.Lines;
    FMenuLateral.Menus.CorNivel[1]  := $00E3E3FF;
    FMenuLateral.Menus.CorNivel[2]  := $00DBFFED;
