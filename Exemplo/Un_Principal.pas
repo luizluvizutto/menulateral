@@ -85,6 +85,10 @@ begin
    // FMenuLateral.PathImg := 'C:\DesenvolWin\EstoqueWinXE\ArquivoRes\BitMaps\';
    FMenuLateral.Cor := $00F9E9DB;
    FMenuLateral.ExpandirNoClique := true;
+
+   FMenuLateral.NomeFonte := 'Tahoma';
+   FMenuLateral.TamanhoFonte := 10;
+   FMenuLateral.Largura := FMenuLateral.Largura + 50;
    // FMenuLateral.Log := Memo1.Lines;
    FMenuLateral.Menus.CorNivel[1]  := $00E3E3FF;
    FMenuLateral.Menus.CorNivel[2]  := $00DBFFED;

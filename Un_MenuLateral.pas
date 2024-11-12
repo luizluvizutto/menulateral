@@ -50,6 +50,8 @@ type
       FExpandirNoClique: Boolean;
 
       FLigado: Boolean;
+      FNomeFonte: String;
+      FTamanhoFonte: Integer;
 
       procedure SetFAtivo(const Value: Boolean);
       procedure ConfiguraMenu( Painel: TPanel );
@@ -87,6 +89,8 @@ type
       property Ativo: Boolean    read FAtivo   write SetFAtivo;
       property Cor: TColor       read GetFCor  write SetFCor;
       property CorFonte: TColor  read GetFCorFonte  write SetFCorFonte;
+      property NomeFonte: String read FNomeFonte    write FNomeFonte;
+      property TamanhoFonte: Integer read FTamanhoFonte write FTamanhoFonte;
       property Menus: TmtMenus   read FMenus   write FMenus;
       property PathImg: String   read FPathImg write FPathImg;
       property Log: TStrings     read FLog              write FLog;
@@ -148,8 +152,8 @@ begin
    Painel.Color := FMenus.CorNivel[0];
    Painel.BevelOuter := bvNone;
    Painel.ParentBackground := false;
-   Painel.Font.Name := 'Verdana';
-   Painel.Font.Size := 8;
+   Painel.Font.Name := FNomeFonte;
+   Painel.Font.Size := FTamanhoFonte;
    Painel.AlignWithMargins := false;
    Painel.Margins.Left := 0;
    Painel.Margins.Right := 0;
@@ -180,6 +184,9 @@ begin
    FTimerOnClique.Enabled  := false;
    FTimerOnClique.Interval := INTERVALO_ONCLIQUE;
    FTimerOnClique.OnTimer  := DesligaFLigado;
+
+   FNomeFonte    := 'verdana';
+   FTamanhoFonte := 8;
 
 end;
 // *****************************************************************************
