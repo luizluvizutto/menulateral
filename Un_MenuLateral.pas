@@ -118,6 +118,9 @@ implementation
 procedure TmtMenuLateral.Clique(Sender: TObject);
 var B: TSpeedButton;
     M: TmtMenu;
+    T: TThread;
+    i: Integer;
+    PainelAberto: TPanel;
 begin
    B := (Sender as TSpeedButton);
 
@@ -135,14 +138,32 @@ begin
    end;
    M := FMenus.Localizar(B.Name);
    LimparFoco;
-   MovimentarMenu;
+
 
    if FExpandirNoClique then begin
       FLigado := false;
    end;
 
-   if Assigned(M.Procedimento) then
-      M.procedimento( Self );
+   try
+      if Assigned(M.Procedimento) then begin
+
+         // Oculta os menus no momento do clique e depois que executar ai sim, libera-se os objetos.
+         for i := Self.ComponentCount-1 downto 0 do begin
+             if Self.Components[i].ClassType = TPanel then begin
+                PainelAberto := Self.Components[i] as TPanel;
+                PainelAberto.Visible := false;
+             end;
+         end;
+         if FPainelMenu.Width <> LARGURA_CONTRAIDA then
+            FPainelMenu.Width := LARGURA_CONTRAIDA;
+
+         M.Procedimento( Self );
+      end;
+
+   finally
+      MovimentarMenu;
+   end;
+
 end;
 // *****************************************************************************
 procedure TmtMenuLateral.ConfiguraMenu(Painel: TPanel);
@@ -187,6 +208,8 @@ begin
 
    FNomeFonte    := 'verdana';
    FTamanhoFonte := 8;
+
+   // FOwner := AOWer;
 
 end;
 // *****************************************************************************
